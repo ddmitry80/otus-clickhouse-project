@@ -104,6 +104,7 @@ services:
       - nifi_provenance:/opt/nifi/nifi-current/provenance_repository
       - nifi_database:/opt/nifi/nifi-current/database_repository
       - ./nifi/logs:/opt/nifi/nifi-current/logs
+      - ./data:/data:ro
     networks:
       - ch_project_work
 
