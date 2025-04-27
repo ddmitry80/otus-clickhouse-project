@@ -1,0 +1,12 @@
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
+
+ADD /netflow_producer /netflow_producer
+
+WORKDIR /netflow_producer
+
+# RUN pwd && ls && sleep 10
+
+RUN uv sync --locked
+# RUN uv run main.py
+
+CMD ["uv", "run", "main.py"]
