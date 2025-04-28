@@ -204,15 +204,15 @@ services:
     networks:
       - ch_project_work
     volumes:
-      - ./logs:/netflow_producer/logs
+      - ./netflow_producer/logs:/netflow_producer/logs
       - ./data:/data
     environment:
-      - TZ=Europe/Moscow
-      - KAFKA_BROKER=kafka:29092
-      - KAFKA_TOPIC=csv_data_topic
-      - CSV_DIRECTORY="../data/TelecomX/telecom100k/"
-      - LOG_FILE="logs/netflow_producer.log"
-      - TIME_POINTER_FILE="logs/time_pointer.txt"
+      TZ: Europe/Moscow
+      KAFKA_BROKER: kafka:29092
+      KAFKA_TOPIC: csv_data_topic
+      CSV_DIRECTORY: /data/TelecomX/telecom100k/
+      LOG_FILE: logs/netflow_producer.log
+      TIME_POINTER_FILE: logs/time_pointer.txt
 
 networks:
   ch_project_work:

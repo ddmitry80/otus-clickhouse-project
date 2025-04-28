@@ -1,5 +1,0 @@
-2025-04-27 23:30:19.029 | INFO     | __main__:get_kafka_producer:63 - KafkaProducer успешно инициализирован!
-2025-04-27 20:42:18.663 | ERROR    | __main__:get_kafka_producer:66 - Ошибка инициализации KafkaProducer: NoBrokersAvailable
-2025-04-27 23:47:33.456 | ERROR    | __main__:get_kafka_producer:66 - Ошибка инициализации KafkaProducer: NoBrokersAvailable
-2025-04-27 23:47:36.987 | ERROR    | __main__:get_kafka_producer:66 - Ошибка инициализации KafkaProducer: NoBrokersAvailable
-2025-04-27 23:47:40.485 | ERROR    | __main__:get_kafka_producer:66 - Ошибка инициализации KafkaProducer: NoBrokersAvailable
