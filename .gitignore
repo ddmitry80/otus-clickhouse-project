@@ -1,2 +1,3 @@
 data/TelecomX
 nifi/logs
+netflow_producer/uv.lock
