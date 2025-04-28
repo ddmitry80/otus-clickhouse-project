@@ -107,6 +107,8 @@ services:
       - ./data:/data:ro
     networks:
       - ch_project_work
+    depends_on:
+      - kafka
 
   kafka:
     image: apache/kafka:3.8.0
@@ -143,6 +145,8 @@ services:
       - ch_project_work
     volumes:
       - kafka-ui-data:/app/data
+    depends_on:
+      - kafka
   
   prometheus:
     image: prom/prometheus:v2.53.4
@@ -213,6 +217,24 @@ services:
       CSV_DIRECTORY: /data/TelecomX/telecom100k/
       LOG_FILE: logs/netflow_producer.log
       TIME_POINTER_FILE: logs/time_pointer.txt
+    depends_on:
+      - kafka
+
+  haproxy:
+    image: haproxy:3.1.7
+    networks:
+      - ch_project_work
+    ports:
+      - "9001:9000"  
+      - "8124:8123"  # HTTP порт для ClickHouse c балансировкой
+    volumes:
+      - ./configs/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - clickhouse1
+      - clickhouse2
+      - clickhouse3
+      - clickhouse4
+    restart: unless-stopped
 
 networks:
   ch_project_work:
