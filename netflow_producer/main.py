@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+import json
 import time
 import pandas as pd
 from kafka import KafkaProducer
@@ -7,20 +8,27 @@ from pathlib import Path
 from loguru import logger
 from typing import Any, Dict
 import pytz
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 # Модель данных netflow
-class Router(BaseModel):
+class RouterReport(BaseModel):
     IdSession: int
     IdPSX: int
     IdSubscriber: int
     StartSession: datetime
-    EndSesstion: datetime | None = None
+    EndSession: datetime | None
     Duration: int
     UpTx: int
     DownTx: int
+    SourceFile: str
+
+    @field_validator('EndSession', mode='before')
+    def convert_nat_to_none(cls, v: object) -> object:
+        if v is pd.NaT:
+            return None
+        return v
 
 
 class Settings(BaseSettings):
@@ -29,9 +37,9 @@ class Settings(BaseSettings):
     current_timezone: str = 'Europe/Moscow'
     kafka_broker: str = 'localhost:9092'
     kafka_topic: str = 'csv_data_topic'
-    csv_directory: str = '../data/TelecomX/telecom100k/'
+    csv_directory: str = '../data/TelecomX/telecom1000k/'
     log_file: str = "logs/netflow_producer.log"
-    time_pointer_file: str = 'logs/time_pointer.txt'
+    time_pointer_file: str = 'logs/time_pointer.json'
     wait_time: int = 10  # время ожидания перед отправкой следующей порции данных
 
 
@@ -84,6 +92,26 @@ def send_dataframe(dataframe: pd.DataFrame, model: BaseModel, producer: KafkaPro
         producer.send(KAFKA_TOPIC, value=model(**rec).model_dump_json(), headers=headers_list)
 
 
+def save_state(path: Path | str, current_time: pd.Timestamp, time_pointer: pd.Timestamp):
+    """Сохраняет текущее время и поток в файл"""
+    record = {
+        'current_time': current_time.isoformat()
+        , 'time_pointer': time_pointer.isoformat()
+        }
+    with open(Path(path), 'wt') as state_file:
+        state_file.write(json.dumps(record))
+    logger.debug('State has saved')
+
+
+def load_state(path: Path | str, tz: pytz.BaseTzInfo) -> datetime | pd.Timestamp:
+    """Возвращает текущее время и поток (current_time, time_pointer) из файла"""
+    path = Path(path)
+    with open(path, 'rt') as state_file:
+        current_state = json.loads(state_file.readline())
+    logger.debug('State has loaded')
+    return pd.Timestamp(current_state['current_time']), pd.Timestamp(current_state['time_pointer'], tz=tz)
+
+
 def main():
     print("Hello from netflow-producer!")
 
@@ -97,15 +125,11 @@ def main():
 
     producer = get_kafka_producer()
 
-    # Управление задержками передачи
-    start_time = datetime.now()
-    current_time = start_time
-
     # Читаю сохраненую закладу времени
     if Path(settings.time_pointer_file).exists():
-        with open(Path(settings.time_pointer_file), 'rt') as time_pointer_file:
-            current_time_pointer = pd.Timestamp(time_pointer_file.readline(), tz=current_timezone)
+        current_time, current_time_pointer = load_state(settings.time_pointer_file, tz=current_timezone)
     else:
+        current_time = pd.Timestamp(datetime.now(), tz=current_timezone)
         current_time_pointer = pd.Timestamp('1900-01-01 00:00:00', tz=current_timezone)
 
     # Перебираем циклом каждый временной период по всем наборам источников за все время, выбираем одно время за раз
@@ -129,8 +153,9 @@ def main():
             df = pd.read_csv(df_file, sep='|', parse_dates=['StartSession','EndSession'], dayfirst=True).rename(columns={"Duartion": "Duration"})
             df['StartSession'] = df['StartSession'].dt.tz_localize('Etc/GMT-5').dt.tz_convert(current_timezone) + df_delta
             df['EndSession'] = df['EndSession'].dt.tz_localize('Etc/GMT-5').dt.tz_convert(current_timezone) + df_delta
+            df['SourceFile'] = df_file.name;
 
-            send_dataframe(dataframe=df, model=Router, producer=producer, headers={'df_file': df_file})
+            send_dataframe(dataframe=df, model=RouterReport, producer=producer, headers={'df_file': df_file})
             time.sleep(settings.wait_time*60/10)
         # Берем csv источники
         for df_file in (r3_file, r4_file, r5_file):
@@ -138,14 +163,19 @@ def main():
             df = pd.read_csv(df_file, sep=',', parse_dates=['StartSession','EndSession'], dayfirst=True).rename(columns={"Duartion": "Duration"})
             df['StartSession'] = df['StartSession'].dt.tz_localize('Etc/GMT-6').dt.tz_convert(current_timezone) + df_delta
             df['EndSession'] = df['EndSession'].dt.tz_localize('Etc/GMT-6').dt.tz_convert(current_timezone) + df_delta
+            df['SourceFile'] = df_file.name;
 
-            send_dataframe(dataframe=df, model=Router, producer=producer, headers={'df_file': df_file})
+            send_dataframe(dataframe=df, model=RouterReport, producer=producer, headers={'df_file': df_file})
             time.sleep(settings.wait_time*60/10)
         producer.flush()
 
-        # Записываем текущую временную метку
-        with open(Path(settings.time_pointer_file), 'wt') as time_pointer_file:
-            print((df_time + pd.Timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S'), file=time_pointer_file)
+        # Сохраняю текущее состояние
+        save_state(
+            path = settings.time_pointer_file 
+            ,current_time = next_time
+            ,time_pointer = df_time +  pd.Timedelta(minutes=10)
+            ,tz = settings.current_timezone
+            )
 
         # Ожидаем следующий перод времени
         wait_until(next_time)
