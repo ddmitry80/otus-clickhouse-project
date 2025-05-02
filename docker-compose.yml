@@ -214,9 +214,9 @@ services:
       TZ: Europe/Moscow
       KAFKA_BROKER: kafka:29092
       KAFKA_TOPIC: csv_data_topic
-      CSV_DIRECTORY: /data/TelecomX/telecom100k/
+      CSV_DIRECTORY: /data/TelecomX/telecom1000k/
       LOG_FILE: logs/netflow_producer.log
-      TIME_POINTER_FILE: logs/time_pointer.txt
+      TIME_POINTER_FILE: logs/time_pointer.json
     depends_on:
       - kafka
 
