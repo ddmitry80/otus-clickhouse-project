@@ -75,14 +75,15 @@ def get_kafka_producer() -> KafkaProducer:
         raise
 
 
-def wait_until(target_time: datetime):
+def wait_until(target_time: pd.Timestamp):
     """Ждёт до указанного времени (формат 'HH:MM:SS')."""
     while True:
-        now = datetime.now()
+        now = pd.Timestamp(datetime.now(), tz=current_timezone)
         if now >= target_time:
             break  # Если время уже наступило, выходим
         time_left = (target_time - now).total_seconds()
         time.sleep(min(time_left, 1))  # Ждём не более 1 секунды за раз
+    logger.debug(f"{target_time} наступило")
 
 
 def send_dataframe(dataframe: pd.DataFrame, model: BaseModel, producer: KafkaProducer, headers: dict = None):
@@ -100,7 +101,7 @@ def save_state(path: Path | str, current_time: pd.Timestamp, time_pointer: pd.Ti
         }
     with open(Path(path), 'wt') as state_file:
         state_file.write(json.dumps(record))
-    logger.debug('State has saved')
+    logger.debug(f'Состояние сохранено: {record=}')
 
 
 def load_state(path: Path | str, tz: pytz.BaseTzInfo) -> datetime | pd.Timestamp:
@@ -108,7 +109,7 @@ def load_state(path: Path | str, tz: pytz.BaseTzInfo) -> datetime | pd.Timestamp
     path = Path(path)
     with open(path, 'rt') as state_file:
         current_state = json.loads(state_file.readline())
-    logger.debug('State has loaded')
+    logger.debug(f'Состояние загруженио: {current_state=}')
     return pd.Timestamp(current_state['current_time']), pd.Timestamp(current_state['time_pointer'], tz=tz)
 
 
@@ -140,7 +141,8 @@ def main():
 
         # Берем поправку на время данных
         df_time = pd.Timestamp(r0_file.stem[9:], tz=current_timezone)
-        df_delta = datetime.now(tz=current_timezone) - df_time
+        df_delta = current_time - df_time
+        logger.debug(f"Поправка времени: {df_time=}, {df_delta=}")
 
         # Пропускаем уже прочитанное время
         if df_time < current_time_pointer:
@@ -174,7 +176,6 @@ def main():
             path = settings.time_pointer_file 
             ,current_time = next_time
             ,time_pointer = df_time +  pd.Timedelta(minutes=10)
-            ,tz = settings.current_timezone
             )
 
         # Ожидаем следующий перод времени
