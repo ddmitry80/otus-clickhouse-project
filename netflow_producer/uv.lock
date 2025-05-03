@@ -383,12 +383,12 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ipykernel", specifier = ">=6.29.5" },
-    { name = "kafka-python", specifier = ">=2.1.5" },
-    { name = "loguru", specifier = ">=0.7.3" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pydantic", extras = ["email", "timezone"], specifier = ">=2.11.3" },
-    { name = "pydantic-settings", specifier = ">=2.9.1" },
+    { name = "ipykernel", specifier = ">=6.29" },
+    { name = "kafka-python", specifier = ">=2.1" },
+    { name = "loguru", specifier = ">=0.7" },
+    { name = "pandas", specifier = ">=2.2" },
+    { name = "pydantic", extras = ["email", "timezone"], specifier = ">=2.11" },
+    { name = "pydantic-settings", specifier = ">=2.9" },
 ]
 
 [[package]]
