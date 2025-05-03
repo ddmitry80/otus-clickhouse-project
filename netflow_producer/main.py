@@ -153,8 +153,8 @@ def main():
         for df_file in (r0_file, r1_file, r2_file):
             logger.debug(f"{df_file=}")
             df = pd.read_csv(df_file, sep='|', parse_dates=['StartSession','EndSession'], dayfirst=True).rename(columns={"Duartion": "Duration"})
-            df['StartSession'] = df['StartSession'].dt.tz_localize('Etc/GMT-5') + df_delta
-            df['EndSession'] = df['EndSession'].dt.tz_localize('Etc/GMT-5') + df_delta
+            df['StartSession'] = df['StartSession'].dt.tz_localize('Europe/Moscow') + df_delta
+            df['EndSession'] = df['EndSession'].dt.tz_localize('Europe/Moscow') + df_delta
             df['SourceFile'] = df_file.name;
 
             send_dataframe(dataframe=df, model=RouterReport, producer=producer, headers={'df_file': df_file})
@@ -163,8 +163,8 @@ def main():
         for df_file in (r3_file, r4_file, r5_file):
             logger.debug(f"{df_file=}")
             df = pd.read_csv(df_file, sep=',', parse_dates=['StartSession','EndSession'], dayfirst=True).rename(columns={"Duartion": "Duration"})
-            df['StartSession'] = df['StartSession'].dt.tz_localize('Etc/GMT-6') + df_delta 
-            df['EndSession'] = df['EndSession'].dt.tz_localize('Etc/GMT-6') + df_delta 
+            df['StartSession'] = df['StartSession'].dt.tz_localize('Europe/Moscow') + df_delta 
+            df['EndSession'] = df['EndSession'].dt.tz_localize('Europe/Moscow') + df_delta 
             df['SourceFile'] = df_file.name;
 
             send_dataframe(dataframe=df, model=RouterReport, producer=producer, headers={'df_file': df_file})
