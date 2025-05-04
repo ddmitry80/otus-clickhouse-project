@@ -49,5 +49,17 @@ ORDER BY startSession DESC
 LIMIT 1000;
 ```
 
+## Настраиваем отчетность
 
+### Первоначальная настройка Superset
 
+```sh
+# Подключаемся к конейнеру
+docker compose exec -it superset bash
+# Следующие команды выполнить внутри контейнера
+superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@superset.com --password admin
+superset db upgrade
+superset init
+```
+
+### Подключение отчетов
