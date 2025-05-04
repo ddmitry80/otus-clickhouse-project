@@ -142,7 +142,7 @@ def main():
         # Берем поправку на время данных
         df_time = pd.Timestamp(r0_file.stem[9:], tz=current_timezone)
         df_delta = current_time - df_time
-        logger.debug(f"Поправка времени: {df_time=}, {df_delta=}")
+        logger.debug(f"Поправка времени: {df_time=}, {current_time=}, {df_delta=}")
 
         # Пропускаем уже прочитанное время
         if df_time < current_time_pointer:
