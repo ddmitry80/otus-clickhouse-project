@@ -49,7 +49,7 @@ ORDER BY startSession DESC
 LIMIT 1000;
 ```
 
-## Настраиваем отчетность
+## Настраиваем отчетность в Apache Superset
 
 ### Первоначальная настройка Superset
 
@@ -72,4 +72,22 @@ Dasboards -> Import dashboards
 Выбрать `superset/netflow_dashboard_export_?.zip`, указать пароль `123456`
 
 Дашборд будет доступен в разделе Dashboards под именем NetFlow
+
+## Мониторинг
+
+### Prometheus
+
+Запускается автоматически. Доступен по http://localhost:9090/
+
+### Grafana
+
+Запускается автоматически. Пароль по умолчанию admin/admin, далее потребуется сменить.
+
+Точка входа http://localhost:3000
+
+Рекомендованый конфиг grafana_14192_rev4.json.
+
+Для настройки сначала подключаем prometheus: Connections -> Add new connection -> Prometheus -> Add new datasource. Connection url: http://prometheus:9090 -> Save & test
+
+Далее - подключаем дашборд Clickhouse: Dashboards -> New -> Import -> указать содержимое файла `grafana_14192_rev4.json` -> Указать ранее подключенный Prometheus.
 
