@@ -217,6 +217,7 @@ services:
       CSV_DIRECTORY: /data/TelecomX/telecom1000k/
       LOG_FILE: logs/netflow_producer.log
       TIME_POINTER_FILE: logs/time_pointer.json
+      # WAIT_TIME: 2  # для целей отладки
     depends_on:
       - kafka
 
