@@ -27,7 +27,7 @@ docker compose up
 ## Создать необходимые структуры данных в кластере
 
 ```sh
-docker compose exec -T clickhouse1 clickhouse-client -u default --password 123456 < data/init_pipeline.sql
+docker compose exec -T clickhouse1 clickhouse-client -u default --password 123456 < sql/init_pipeline.sql
 ```
 
 ## Запускаем поток данных NiFi из Kafka в Clickhouse
