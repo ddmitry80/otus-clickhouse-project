@@ -63,3 +63,13 @@ superset init
 ```
 
 ### Подключение отчетов
+
+Зайти http://localhost:8088/
+- login: `admin'
+- password: `admin'
+
+Dasboards -> Import dashboards
+Выбрать `superset/netflow_dashboard_export_?.zip`, указать пароль `123456`
+
+Дашборд будет доступен в разделе Dashboards под именем NetFlow
+
