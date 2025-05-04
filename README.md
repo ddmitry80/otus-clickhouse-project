@@ -32,7 +32,7 @@ docker compose exec -T clickhouse1 clickhouse-client -u default --password 12345
 
 ## Запускаем поток данных NiFi из Kafka в Clickhouse
 
-Зайти в NiFi http://localhost:18443/nifi/, загрузить и активировать ProcessGroup `NetFlow2ClickHouse'
+Зайти в NiFi http://localhost:18443/nifi/, загрузить и активировать ProcessGroup `NetFlow2ClickHouse' из каталога nifi.
 
 # Конролировать процесс из DBeaver
 
