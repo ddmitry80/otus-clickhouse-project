@@ -1,3 +1,4 @@
 data/TelecomX
 nifi/logs
-.$hld_diagram.drawio.bkp
+.$*.bkp
+~$*pptx
