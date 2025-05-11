@@ -76,6 +76,7 @@ Dasboards -> Import dashboards
 Выбрать `superset/netflow_dashboard_export_?.zip`, указать пароль `123456`
 
 Дашборд будет доступен в разделе Dashboards под именем NetFlow
+![Скриншот дашборда](Superset-NetFlow-Dashboard.png)
 
 ### Мониторинг
 
